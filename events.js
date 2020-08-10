@@ -19,17 +19,27 @@ var events = function(socket) {
 
   socket.on('update', async ({ version, clientID, steps, participant}) => {
     redisClient.get(channel+":doc", function(err, val) {
+      if (err) { console.log("update error", err); return }
       var storedData = (val && JSON.parse(val)) || config.defaultData
-      if (err) { return }
+
+      console.log("update, document is:", storedData)
 
       if (storedData.version !== version) {
+        console.log("storedData.version !== version; resending steps", version)
         redisClient.lrange(channel+":steps", 0, -1, function(err, val) {
           if (err) { console.error(err); return }
-          allSteps = JSON.parse(val)
-          socket.emit('update', {
-            vesion: version,
+          let allSteps =  JSON.parse(val) || []
+          console.log("all steps: ", allSteps)
+          console.log("emitting update", {
+            version: version,
             steps: allSteps.filter(step => {step.version > version}),
-            clientID: socket.id
+            clientID: clientID
+          })
+
+          socket.emit('update', {
+            version: version,
+            steps: allSteps.filter(step => {step.version > version}),
+            clientID: clientID
           })
         })
         return
@@ -45,22 +55,33 @@ var events = function(socket) {
         return newStep
       })
 
+
       // calculating a new version number is easy)
       const newVersion = version + newSteps.length
+      console.log("newVersion:", newVersion)
 
       newSteps = steps.map((step, index) => {
         return {
           step: JSON.parse(JSON.stringify(step)),
           version: newVersion + index + 1,
-          clientID: step.clientID,
+          clientID: socket.id,
         }
       })
 
+
       newSteps.forEach(step => {
-        redisClient.rpush(channel+":steps", JSON.stringify(step))
+        redisClient.rpush(channel+":steps", JSON.stringify(step, null, 2))
       })
 
-      redisClient.set(channel+":doc", JSON.stringify({version: newVersion, doc}))
+      redisClient.set(channel+":doc", JSON.stringify({version: newVersion, doc}, null, 2))
+
+      console.log("newSteps:", newSteps)
+      console.log("newDocument:", JSON.stringify({version: newVersion, doc}, null, 2))
+      console.log("emitting:", 'update', {
+        version: newVersion,
+        steps: newSteps,
+        clientID: socket.id
+      })
 
       // send update to everyone (me and others)
       socket.nsp.emit('update', {
