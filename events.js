@@ -3,32 +3,27 @@
 const Schema = require('./schema.js')
 const Step = require('prosemirror-transform').Step
 const config = require('./config.js')
-
-let
-  redis = require('redis'),
-  redisClient = redis.createClient({ port: 6379, host: 'localhost' })
-
-redisClient.on("error", function(err) {
-  console.error("redisClient", err)
-});
+const redisClient = require('./redis.js')
 
 
 var events = function(socket) {
-  const channel = socket.nsp.name
-  console.log("channel: ", channel)
+  const docPath = socket.nsp.name + ":doc"
+  const stepsPath = socket.nsp.name + ":steps"
 
   socket.on('update', async ({ version, clientID, steps, participant}) => {
-    redisClient.get(channel+":doc", function(err, val) {
+    redisClient.get(docPath, function(err, val) {
       if (err) { console.log("update error", err); return }
+      console.log("get docPath", docPath, val)
       var storedData = (val && JSON.parse(val)) || config.defaultData
 
       console.log("update, document is:", storedData)
 
       if (storedData.version !== version) {
-        console.log("storedData.version !== version; resending steps", version)
-        redisClient.lrange(channel+":steps", 0, -1, function(err, val) {
+        console.log("storedData.version !== version", storedData.version, version)
+        redisClient.lrange(stepsPath, 0, -1, function(err, val) {
           if (err) { console.error(err); return }
-          let allSteps =  JSON.parse(val) || []
+          console.log("raw steps: ", val)
+          let allSteps = val.map((str) => JSON.parse(str))
           console.log("all steps: ", allSteps)
           console.log("emitting update", {
             version: version,
@@ -70,10 +65,10 @@ var events = function(socket) {
 
 
       newSteps.forEach(step => {
-        redisClient.rpush(channel+":steps", JSON.stringify(step, null, 2))
+        redisClient.rpush(stepsPath, JSON.stringify(step))
       })
 
-      redisClient.set(channel+":doc", JSON.stringify({version: newVersion, doc}, null, 2))
+      redisClient.set(docPath, JSON.stringify({version: newVersion, doc}, null, 2))
 
       console.log("newSteps:", newSteps)
       console.log("newDocument:", JSON.stringify({version: newVersion, doc}, null, 2))
@@ -98,7 +93,7 @@ var events = function(socket) {
     socket.nsp.emit('getCount', socket.server.engine.clientsCount)
   })
 
-  redisClient.get(channel+":doc", function(err, value) {
+  redisClient.get(docPath, function(err, value) {
     if (err) {
       console.log("init redis data error", err)
       return
