@@ -4,17 +4,7 @@ let defaultData = {
   "version": 0,
   "doc": {
     "type": "doc",
-    "content": [
-      {
-        "type": "paragraph",
-        "content": [
-          {
-            "type": "text",
-            "text": "new collaborative document"
-          }
-        ]
-      }
-    ]
+    "content": [{"type": "paragraph"}]
   }
 }
 
