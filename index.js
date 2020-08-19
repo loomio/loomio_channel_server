@@ -20,7 +20,7 @@ nameSpace = server.of(/^\/tiptap\//)
 //   socket.user = user
 //
 //   if (user) {
-//     console.log("nexting")
+//     console.info("nexting")
 //     next()
 //   }else{
 //     next(new Error("cannot find channel token"+channel_token))
