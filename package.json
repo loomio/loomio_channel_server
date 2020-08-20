@@ -6,8 +6,7 @@
   "author": "Gianni Carafa <gicara@gmail.com>",
   "license": "GPLv3",
   "engines": {
-    "node": "12.x",
-    "npm": "6.x"
+    "node": "14.x"
   },
   "dependencies": {
     "prosemirror-model": "^1.10.0",
