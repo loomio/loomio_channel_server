@@ -3,16 +3,16 @@
 const Schema = require('./schema.js')
 const Step = require('prosemirror-transform').Step
 const config = require('./config.js')
-const redisClient = require('./redis.js')
 
+const redis = require('redis')
+console.log(config.redis)
+const redisClient = redis.createClient(config.redis)
 
 var events = function(socket) {
 
   const docPath = socket.nsp.name + ":doc"
   const stepsPath = socket.nsp.name + ":steps"
   const decorationsPath = socket.nsp.name + ":decorations"
-
-  // socket.join(decorationsPath);
 
   socket.on('update', async ({ version, clientID, steps, participant}) => {
     redisClient.get(decorationsPath, function(err, val) {
