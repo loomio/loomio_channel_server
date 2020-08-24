@@ -5,7 +5,9 @@ const config = require('./config.js')
 const redis = require('redis')
 const redisSubscribe = redis.createClient(config.redis)
 const redisClient = redis.createClient(config.redis)
+
 const getAsync = promisify(redisClient.get).bind(redisClient);
+const zrangeAsync = promisify(redisClient.zrange).bind(redisClient);
 
 var records = async function(socket) {
 
@@ -22,12 +24,22 @@ var records = async function(socket) {
     console.log(new Error("cannot find channel token"+channel_token))
   }
 
+  socket.on("hey", (data, callback) => {
+    console.log(data, callback)
+    Object.keys(data).forEach(async (room) => {
+      let clientScore = data[room]
+      records = await zrangeAsync("/records"+room, clientScore, -1)
+      console.log("calling back with ", records)
+      callback(records)
+    })
+  })
+
   console.log('socket connect', socket.nsp.name)
 
   redisSubscribe.on("message", function(channel, message_string) {
     let message = JSON.parse(message_string)
     // console.log("message", channel, "group-"+message.group_id,  message_string)
-    socket.to(message.room).emit("update", message.records)
+    socket.to(message.room).emit("update", message)
   });
 
   redisSubscribe.subscribe(socket.nsp.name, function(err, value) {
