@@ -3,6 +3,7 @@
 const { promisify } = require("util");
 const config = require('./config.js')
 const redis = require('redis')
+const redisSubscribe = redis.createClient(config.redis)
 const redisClient = redis.createClient(config.redis)
 const getAsync = promisify(redisClient.get).bind(redisClient);
 
@@ -14,21 +15,22 @@ var records = async function(socket) {
   let user = await getAsync("/current_users/"+channel_token)
   if (user) {
     user = JSON.parse(user)
-    console.log("have current user!", user.name)
+    socket.join("user-"+user.id)
     user.group_ids.forEach(groupId => { socket.join("group-"+groupId) })
+    console.log("have current user!", user.name, user.group_ids)
   }else{
     console.log(new Error("cannot find channel token"+channel_token))
   }
 
   console.log('socket connect', socket.nsp.name)
 
-  redisClient.on("message", function(channel, message_string) {
-    console.log("on message", channel, message_string)
+  redisSubscribe.on("message", function(channel, message_string) {
     let message = JSON.parse(message_string)
-    socket.to(message.group_id).emit("update", JSON.parse(message))
+    // console.log("message", channel, "group-"+message.group_id,  message_string)
+    socket.to(message.room).emit("update", message.records)
   });
 
-  redisClient.subscribe(socket.nsp.name, function(err, value) {
+  redisSubscribe.subscribe(socket.nsp.name, function(err, value) {
     if (err) {
       console.log("redis subscribe error", socket.nsp.name, err)
       return
