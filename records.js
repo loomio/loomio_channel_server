@@ -10,7 +10,6 @@ const getAsync = promisify(redisClient.get).bind(redisClient);
 const zrangeAsync = promisify(redisClient.zrange).bind(redisClient);
 
 var records = async function(socket) {
-
   const recordsPath = socket.nsp.name
 
   let channel_token = socket.handshake.query.channel_token
@@ -24,17 +23,15 @@ var records = async function(socket) {
     console.log(new Error("cannot find channel token"+channel_token))
   }
 
-  // rename to catchup
   socket.on("catchup", (data, callback) => {
     console.log("catchup:", {data: data, callback: callback})
     Object.keys(data).forEach(async (room) => {
       let clientScore = data[room]
       records = await zrangeAsync("/records/"+room, clientScore, -1)
-      console.log("fetching data", room, data[room], clientScore, records)
+      // console.log("fetching data", room, data[room], clientScore, records)
       callback(records.map(JSON.parse))
     })
   })
-
 }
 
 module.exports = records

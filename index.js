@@ -18,7 +18,6 @@ const redisSubscribe = redis.createClient(config.redis)
 
 redisSubscribe.on("message", function(channel, message_string) {
   let message = JSON.parse(message_string)
-  console.log("message", channel, "group-"+message.group_id,  message_string)
   recordsNamespace.to(message.room).emit("update", message)
 });
 
