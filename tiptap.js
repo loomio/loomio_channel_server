@@ -5,7 +5,6 @@ const Step = require('prosemirror-transform').Step
 const config = require('./config.js')
 
 const redis = require('redis')
-console.log(config.redis)
 const redisClient = redis.createClient(config.redis)
 
 var events = function(socket) {
@@ -13,6 +12,15 @@ var events = function(socket) {
   const docPath = socket.nsp.name + ":doc"
   const stepsPath = socket.nsp.name + ":steps"
   const decorationsPath = socket.nsp.name + ":decorations"
+
+  redisClient.get(docPath, function(err, value) {
+    if (err) {
+      console.log("init redis data error", err)
+      return
+    }
+    console.log("init", (JSON.parse(value) || config.defaultData))
+    socket.emit('init', (JSON.parse(value) || config.defaultData))
+  })
 
   socket.on('update', async ({ version, clientID, steps, participant}) => {
     redisClient.get(decorationsPath, function(err, val) {
@@ -26,24 +34,14 @@ var events = function(socket) {
       redisClient.get(docPath, function(err, val) {
         if (err) { console.log("update doc error", err); return }
 
-        // console.log("get docPath", docPath, val)
-
         var storedData = (val && JSON.parse(val)) || config.defaultData
 
-        // console.log("update, document is:", storedData)
-
         if (storedData.version !== version) {
+          // infuture, store steps in sortedSet with score=version., then we don't need to retrieve them all to reply.
           // console.log("storedData.version !== version", storedData.version, version)
           redisClient.lrange(stepsPath, 0, -1, function(err, val) {
             if (err) { console.error(err); return }
-            // console.log("raw steps: ", val)
             let allSteps = val.map((str) => JSON.parse(str))
-            // console.log("all steps: ", allSteps)
-            // console.log("emitting update", {
-            //   version: version,
-            //   steps: allSteps.filter(step => {step.version > version}),
-            //   clientID: clientID
-            // })
 
             socket.emit('update', {
               version: version,
@@ -52,6 +50,14 @@ var events = function(socket) {
               participants: cursorDecorations
             })
           })
+          return
+        }
+
+        if (storedData.doc == null) {
+          redisClient.del(docPath)
+          redisClient.del(decorationsPath)
+          redisClient.del(stepsPath)
+          socket.nsp.emit('init', config.defaultData)
           return
         }
 
@@ -67,7 +73,6 @@ var events = function(socket) {
             if (cursor != undefined && newStep.slice != undefined && cursor > newStep.from) {
               var gap = newStep.from - newStep.to
               cursorDecorations[decoID].cursor = cursor+gap+newStep.slice.content.size
-              //console.log('from:'+newStep.from+' size:'+newStep.slice.content.size+' cursor:'+cursor+' newPosx'+cursorDecorations[decoID].cursor)
             }
           }
 
@@ -76,9 +81,7 @@ var events = function(socket) {
           return newStep
         })
 
-        // calculating a new version number is easy)
         const newVersion = version + newSteps.length
-        // console.log("newVersion:", newVersion)
 
         newSteps = steps.map((step, index) => {
           return {
@@ -93,16 +96,7 @@ var events = function(socket) {
         })
 
         redisClient.set(docPath, JSON.stringify({version: newVersion, doc}, null, 2))
-
         redisClient.set(decorationsPath, JSON.stringify(cursorDecorations, null, 2))
-
-        // console.log("newSteps:", newSteps)
-        // console.log("newDocument:", JSON.stringify({version: newVersion, doc}, null, 2))
-        // console.log("emitting:", 'update', {
-        //   version: newVersion,
-        //   steps: newSteps,
-        //   clientID: socket.id
-        // })
 
         // send update to everyone (me and others)
         socket.nsp.emit('update', {
@@ -111,7 +105,6 @@ var events = function(socket) {
           clientID: socket.id,
           participants: cursorDecorations
         })
-        return
       })
     })
   })
@@ -120,48 +113,30 @@ var events = function(socket) {
     console.log('main.disconnect')
     socket.nsp.emit('getCount', socket.server.engine.clientsCount)
 
-    //load cursors
     redisClient.get(decorationsPath, function(err, val) {
       if (err) { console.log("update decorations error", err); return }
       var cursorDecorations = (val && JSON.parse(val)) || {}
 
-      //delete
       delete cursorDecorations[socket.id]
-      //emit
       socket.nsp.emit('cursorupdate', {participants: cursorDecorations})
-      //save
       redisClient.set(decorationsPath, JSON.stringify(cursorDecorations, null, 2))
     })
   })
 
   // Update collaborators about your cursor postition
   socket.on('cursorchange', async (participant) => {
-    //load cursors
     redisClient.get(decorationsPath, function(err, val) {
       if (err) { console.log("update decorations error", err); return }
       var cursorDecorations = (val && JSON.parse(val)) || {}
 
       cursorDecorations[socket.id] = participant
       cursorDecorations[socket.id]['clientID'] = socket.id
-      //emit
       socket.nsp.emit('cursorupdate', {participants: cursorDecorations})
-      // socket.to(participantsRoom).emit('cursorupdate', {participants: cursorDecorations})
-      //save
       redisClient.set(decorationsPath, JSON.stringify(cursorDecorations, null, 2))
     })
   })
 
-  redisClient.get(docPath, function(err, value) {
-    if (err) {
-      console.log("init redis data error", err)
-      return
-    }
-    console.log("init", (JSON.parse(value) || config.defaultData))
-    socket.emit('init', (JSON.parse(value) || config.defaultData))
-  })
-
   socket.nsp.emit('getCount', socket.server.engine.clientsCount)
 }
-
 
 module.exports = events
