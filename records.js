@@ -24,31 +24,17 @@ var records = async function(socket) {
     console.log(new Error("cannot find channel token"+channel_token))
   }
 
-  socket.on("hey", (data, callback) => {
-    console.log(data, callback)
+  // rename to catchup
+  socket.on("catchup", (data, callback) => {
+    console.log("catchup:", {data: data, callback: callback})
     Object.keys(data).forEach(async (room) => {
       let clientScore = data[room]
-      records = await zrangeAsync("/records"+room, clientScore, -1)
-      console.log("calling back with ", records)
-      callback(records)
+      records = await zrangeAsync("/records/"+room, clientScore, -1)
+      console.log("fetching data", room, data[room], clientScore, records)
+      callback(records.map(JSON.parse))
     })
   })
 
-  console.log('socket connect', socket.nsp.name)
-
-  redisSubscribe.on("message", function(channel, message_string) {
-    let message = JSON.parse(message_string)
-    // console.log("message", channel, "group-"+message.group_id,  message_string)
-    socket.to(message.room).emit("update", message)
-  });
-
-  redisSubscribe.subscribe(socket.nsp.name, function(err, value) {
-    if (err) {
-      console.log("redis subscribe error", socket.nsp.name, err)
-      return
-    }
-    console.log("redis subscribed", socket.nsp.name)
-  })
 }
 
 module.exports = records

@@ -12,3 +12,20 @@ tiptapNamespace.on("connection", tiptapEvents)
 var recordsEvents = require('./records.js')
 recordsNamespace = server.of(/^\/records/)
 recordsNamespace.on("connection", recordsEvents)
+
+const redis = require('redis')
+const redisSubscribe = redis.createClient(config.redis)
+
+redisSubscribe.on("message", function(channel, message_string) {
+  let message = JSON.parse(message_string)
+  console.log("message", channel, "group-"+message.group_id,  message_string)
+  recordsNamespace.to(message.room).emit("update", message)
+});
+
+redisSubscribe.subscribe('/records', function(err, value) {
+  if (err) {
+    console.log("redis subscribe error",'/records', err)
+    return
+  }
+  console.log("redis subscribed", '/records')
+})
