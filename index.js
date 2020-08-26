@@ -14,7 +14,7 @@ recordsNamespace = server.of(/^\/records/)
 recordsNamespace.on("connection", recordsEvents)
 
 const redis = require('redis')
-const redisSubscribe = redis.createClient(config.redis)
+const redisSubscribe = redis.createClient(config.redis.records)
 
 redisSubscribe.on("message", function(channel, message_string) {
   let message = JSON.parse(message_string)
