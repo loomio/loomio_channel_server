@@ -16,14 +16,12 @@ const config = {
     tiptap: {
       port: parseInt(process.env.REDIS_PORT || 6379),
       host: (process.env.REDIS_HOST || 'localhost'),
-      password: (process.env.REDIS_PASSWORD || undefined),
-      db: 1
+      password: (process.env.REDIS_PASSWORD || undefined)
     },
     records:{
       port: parseInt(process.env.REDIS_PORT || 6379),
       host: (process.env.REDIS_HOST || 'localhost'),
-      password: (process.env.REDIS_PASSWORD || undefined),
-      db: 2
+      password: (process.env.REDIS_PASSWORD || undefined)
     }
   }
 }
