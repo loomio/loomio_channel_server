@@ -3,8 +3,8 @@
 const { promisify } = require("util");
 const config = require('./config.js')
 const redis = require('redis')
-const redisSubscribe = redis.createClient(config.redis.records)
-const redisClient = redis.createClient(config.redis.records)
+const redisSubscribe = redis.createClient(config.redis)
+const redisClient = redis.createClient(config.redis)
 
 const getAsync = promisify(redisClient.get).bind(redisClient);
 const zrangeAsync = promisify(redisClient.zrangebyscore).bind(redisClient);

@@ -5,7 +5,7 @@ const Step = require('prosemirror-transform').Step
 const config = require('./config.js')
 
 const redis = require('redis')
-const redisClient = redis.createClient(config.redis.tiptap)
+const redisClient = redis.createClient(config.redis)
 
 var events = function(socket) {
 

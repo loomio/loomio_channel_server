@@ -12,18 +12,7 @@ const config = {
 	"port": port,
 	"defaultData": defaultData,
 	'allowedOrigins': allowedOrigins,
-  "redis": {
-    tiptap: {
-      port: parseInt(process.env.REDIS_PORT || 6379),
-      host: (process.env.REDIS_HOST || 'localhost'),
-      password: (process.env.REDIS_PASSWORD || undefined)
-    },
-    records:{
-      port: parseInt(process.env.REDIS_PORT || 6379),
-      host: (process.env.REDIS_HOST || 'localhost'),
-      password: (process.env.REDIS_PASSWORD || undefined)
-    }
-  }
+  "redis": (process.env.REDIS_URL || 'redis://localhost:6379')
 }
 
 module.exports = config
