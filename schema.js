@@ -209,6 +209,40 @@ const schema = {
     }
   },
   "marks": {
+    "align": {
+      attrs: {
+        textAlign: {
+          default: 'left'
+        },
+      },
+      parseDOM: [{
+        style: 'text-align',
+        getAttrs: value => ({ textAlign: value })
+      }],
+      toDOM: mark => ['span', { style: `text-align: ${mark.attrs.textAlign}; display: block` }, 0]
+    },
+    "foreColor":{
+      attrs: {
+        foreColor: {
+          default: '#000'
+        },
+      },
+      parseDOM: [{
+        style: 'color',
+        getAttrs: value => ({ foreColor: value })
+      }]
+    },
+    "backColor":{
+      attrs: {
+        backColor: {
+          default: '#fff'
+        },
+      },
+      parseDOM: [{
+        style: 'background',
+        getAttrs: value => ({ backColor: value })
+      }]
+    },
     "bold": {
       "parseDOM": [
         {
@@ -235,7 +269,7 @@ const schema = {
           default: null,
         },
         target: {
-            default: null,
+          default: null,
         },
       },
       inclusive: false,
