@@ -28,7 +28,7 @@ var events = function(socket) {
 
       var cursorDecorations = (val && JSON.parse(val)) || {}
 
-      cursorDecorations[participant.userId] = participant
+      cursorDecorations[socket.id] = participant
 
       redisClient.get(docPath, function(err, val) {
         if (err) { console.log("update doc error", err); return }
@@ -70,12 +70,12 @@ var events = function(socket) {
           console.log("(newSteps) given client id, vs, recognised", newStep.clientID, clientID)
           newStep.clientID = clientID
 
-          for (var decoID in cursorDecorations) {
-            if (clientID == decoID) { continue; }
-            var cursor = cursorDecorations[decoID].cursor
+          for (var socketID in cursorDecorations) {
+            if (clientID == cursorDecorations[socketID].clientID) { continue; }
+            var cursor = cursorDecorations[socketID].cursor
             if (cursor != undefined && newStep.slice != undefined && cursor > newStep.from) {
               var gap = newStep.from - newStep.to
-              cursorDecorations[decoID].cursor = cursor+gap+newStep.slice.content.size
+              cursorDecorations[socketID].cursor = cursor+gap+newStep.slice.content.size
             }
           }
 
@@ -97,7 +97,6 @@ var events = function(socket) {
 
         newSteps.forEach(step => {
           redisClient.zadd(stepsPath, step.version, JSON.stringify(step))
-          // console.log("adding step version to redis", step.version)
         })
 
         if (newSteps.length) {
@@ -139,8 +138,7 @@ var events = function(socket) {
       if (err) { console.log("update decorations error", err); return }
       var cursorDecorations = (val && JSON.parse(val)) || {}
 
-      cursorDecorations[participant.userId] = participant
-      cursorDecorations[participant.userId]['userId'] = participant.userId
+      cursorDecorations[socket.id] = participant
       socket.nsp.emit('cursorupdate', {participants: cursorDecorations})
       redisClient.set(decorationsPath, JSON.stringify(cursorDecorations, null, 2))
     })
