@@ -28,10 +28,6 @@ const schema = {
     "todo_list": {
       group: 'block',
       content: 'todo_item+',
-      parseDOM: [{
-        priority: 51,
-        tag: `[data-type="${this.name}"]`
-      }]
     },
     "todo_item": {
       attrs: {
@@ -41,13 +37,6 @@ const schema = {
       },
       draggable: true,
       content: 'paragraph+',
-      parseDOM: [{
-        priority: 51,
-        tag: `[data-type="${this.name}"]`,
-        getAttrs: dom => ({
-          done: dom.getAttribute('data-done') === 'true',
-        }),
-      }]
     },
     "doc": {
       "content": "block+"
@@ -56,14 +45,14 @@ const schema = {
       "group": "inline"
     },
     "paragraph": {
+      "attrs": {
+        "textAlign": {
+          default: null
+        }
+      },
       "content": "inline*",
       "group": "block",
       "draggable": false,
-      "parseDOM": [
-        {
-          "tag": "p"
-        }
-      ]
     },
     "mention": {
       attrs: {
@@ -74,16 +63,6 @@ const schema = {
       inline: true,
       selectable: false,
       atom: true,
-      parseDOM: [
-        {
-          tag: 'span[data-mention-id]',
-          getAttrs: dom => {
-            const id = dom.getAttribute('data-mention-id')
-            const label = dom.innerText.split(this.options.matcher.char).join('')
-            return { id, label }
-          },
-        },
-      ],
     },
     "image": {
       inline: true,
@@ -98,27 +77,13 @@ const schema = {
       },
       group: 'inline',
       draggable: true,
-      parseDOM: [
-        {
-          tag: 'img[src]',
-          getAttrs: dom => ({
-            src: dom.getAttribute('src'),
-            title: dom.getAttribute('title'),
-            alt: dom.getAttribute('alt'),
-          }),
-        },
-      ],
     },
     "horizontal_rule": {
       "group": 'block',
-      "parseDOM": [{ tag: 'hr' }]
     },
     "bullet_list": {
       content: 'list_item+',
       group: 'block',
-      parseDOM: [
-        { tag: 'ul' },
-      ]
     },
     "ordered_list": {
       attrs: {
@@ -128,36 +93,20 @@ const schema = {
       },
       content: 'list_item+',
       group: 'block',
-      parseDOM: [
-        {
-          tag: 'ol',
-          getAttrs: dom => ({
-            order: dom.hasAttribute('start') ? +dom.getAttribute('start') : 1,
-          }),
-        },
-      ],
-      toDOM: node => (node.attrs.order === 1 ? ['ol', 0] : ['ol', { start: node.attrs.order }, 0]),
     },
     "list_item": {
       content: 'paragraph block*',
       defining: true,
       draggable: false,
-      parseDOM: [
-        { tag: 'li' },
-      ]
     },
     "hard_break": {
       "inline": true,
       "group": "inline",
       "selectable": false,
-      "parseDOM": [
-        {
-          "tag": "br"
-        }
-      ]
     },
     "heading": {
       "attrs": {
+        "textAlign": {default: null},
         "level": {
           "default": 1
         }
@@ -166,26 +115,6 @@ const schema = {
       "group": "block",
       "defining": true,
       "draggable": false,
-      "parseDOM": [
-        {
-          "tag": "h1",
-          "attrs": {
-            "level": 1
-          }
-        },
-        {
-          "tag": "h2",
-          "attrs": {
-            "level": 2
-          }
-        },
-        {
-          "tag": "h3",
-          "attrs": {
-            "level": 3
-          }
-        }
-      ]
     },
     "code_block": {
       "content": 'text*',
@@ -194,75 +123,34 @@ const schema = {
       "code": true,
       "defining": true,
       "draggable": false,
-      "parseDOM": [
-        { "tag": 'pre', "preserveWhitespace": 'full' },
-      ]
     },
     "blockquote": {
       "content": "block+",
       "group": "block",
-      "parseDOM": [
-        {
-          "tag": "blockquote"
-        }
-      ]
     }
   },
   "marks": {
     "align": {
       attrs: {
-        textAlign: {
-          default: 'left'
-        },
+        textAlign: { default: null },
       },
-      parseDOM: [{
-        style: 'text-align',
-        getAttrs: value => ({ textAlign: value })
-      }],
-      toDOM: mark => ['span', { style: `text-align: ${mark.attrs.textAlign}; display: block` }, 0]
     },
     "foreColor":{
       attrs: {
         foreColor: {
-          default: '#000'
+          default: null
         },
       },
-      parseDOM: [{
-        style: 'color',
-        getAttrs: value => ({ foreColor: value })
-      }]
     },
     "backColor":{
       attrs: {
         backColor: {
-          default: '#fff'
+          default: null
         },
       },
-      parseDOM: [{
-        style: 'background',
-        getAttrs: value => ({ backColor: value })
-      }]
     },
-    "bold": {
-      "parseDOM": [
-        {
-          "tag": "strong"
-        },
-        {
-          "tag": "b"
-        },
-        {
-          "style": "font-weight"
-        }
-      ]
-    },
-    "code": {
-      "parseDOM": [
-        {
-          "tag": "code"
-        }
-      ]
-    },
+    "bold": {},
+    "code": {},
     "link": {
       attrs: {
         href: {
@@ -273,59 +161,10 @@ const schema = {
         },
       },
       inclusive: false,
-      parseDOM: [
-        {
-          tag: 'a[href]',
-          getAttrs: dom => ({
-            href: dom.getAttribute('href'),
-            target: dom.getAttribute('target'),
-          }),
-        },
-      ]
     },
-    "italic": {
-      "parseDOM": [
-        {
-          "tag": "i"
-        },
-        {
-          "tag": "em"
-        },
-        {
-          "style": "font-style=italic"
-        }
-      ]
-    },
-    "underline": {
-      "parseDOM": [
-        {
-          "tag": "u"
-        },
-        {
-          "tag": "em"
-        },
-        {
-          "style": "text-decoration: underline"
-        }
-      ]
-    },
-    "strike": {
-      "parseDOM": [
-        {
-         "tag": 's',
-       },
-       {
-         "tag": 'del',
-       },
-       {
-         "tag": 'strike',
-       },
-       {
-         style: 'text-decoration',
-         getAttrs: value => value === 'line-through',
-       }
-      ]
-    }
+    "italic": {},
+    "underline": {},
+    "strike": {}
   }
 }
 
