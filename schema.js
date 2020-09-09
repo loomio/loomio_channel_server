@@ -29,6 +29,13 @@ const schema = {
       group: 'block',
       content: 'todo_item+',
     },
+    "iframe": {
+      attrs: {
+        src: { default: ''}
+      },
+      group: 'block',
+      selectable: false
+    },
     "todo_item": {
       attrs: {
         done: {
