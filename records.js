@@ -12,6 +12,8 @@ const zrangeAsync = promisify(redisClient.zrangebyscore).bind(redisClient);
 var records = async function(socket) {
   const recordsPath = socket.nsp.name
 
+  socket.join("notice")
+  
   let channel_token = socket.handshake.query.channel_token
   let user = await getAsync("/current_users/"+channel_token)
   if (user) {

@@ -23,7 +23,11 @@ const redisSubscribe = redis.createClient(config.redis)
 
 redisSubscribe.on("message", function(channel, message_string) {
   let message = JSON.parse(message_string)
-  recordsNamespace.to(message.room).emit("update", message)
+  if(message.notice) {
+    recordsNamespace.to('notice').emit("update", {notice: message.notice})
+  } else {
+    recordsNamespace.to(message.room).emit("update", message)
+  }
 });
 
 redisSubscribe.subscribe('/records', function(err, value) {
@@ -32,4 +36,12 @@ redisSubscribe.subscribe('/records', function(err, value) {
     return
   }
   console.log("redis subscribed", '/records')
+})
+
+redisSubscribe.subscribe('/system_notice', function(err, value) {
+  if (err) {
+    console.log("redis subscribe to /system_notice error", err)
+    return
+  }
+  console.log("redis subscribed", '/system_notice')
 })
