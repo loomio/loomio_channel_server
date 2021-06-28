@@ -9,7 +9,7 @@
     "node": "14.x"
   },
   "dependencies": {
-    "@sentry/node": "^6.7.1",
+    "@sentry/node": "^6.8.0",
     "dotenv": "^8.2.0",
     "prosemirror-model": "^1.14.2",
     "prosemirror-tables": "1.1.1",
