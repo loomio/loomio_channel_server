@@ -24,7 +24,7 @@ const redisSubscribe = redis.createClient(config.redis)
 redisSubscribe.on("message", function(channel, message_string) {
   let message = JSON.parse(message_string)
   if(message.notice) {
-    recordsNamespace.to('notice').emit("update", {notice: message.notice})
+    recordsNamespace.to('notice').emit("update", message)
   } else {
     recordsNamespace.to(message.room).emit("update", message)
   }
