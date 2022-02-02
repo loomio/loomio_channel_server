@@ -6,16 +6,16 @@ if (process.env.SENTRY_DSN) {
 }
 
 const config = require('./config.js')
-const io = require("socket.io");
-const server = io.listen(config.port);
-server.origins(config.allowedOrigins);
-
-var tiptapEvents = require('./tiptap.js')
-tiptapNamespace = server.of(/^\/tiptap\//)
-tiptapNamespace.on("connection", tiptapEvents)
+const { Server } = require("socket.io");
+const io = new Server(config.port, {
+  cors: {
+    origin: config.allowedOrigins,
+    credentials: true
+  }
+})
 
 var recordsEvents = require('./records.js')
-recordsNamespace = server.of(/^\/records/)
+recordsNamespace = io.of(/^\/records/)
 recordsNamespace.on("connection", recordsEvents)
 
 const redis = require('redis')

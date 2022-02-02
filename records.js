@@ -13,14 +13,15 @@ var records = async function(socket) {
   const recordsPath = socket.nsp.name
 
   socket.join("notice")
-  
+
   let channel_token = socket.handshake.query.channel_token
   let user = await getAsync("/current_users/"+channel_token)
+
   if (user) {
     user = JSON.parse(user)
     socket.join("user-"+user.id)
     user.group_ids.forEach(groupId => { socket.join("group-"+groupId) })
-    console.log("have current user!", user.name, user.group_ids)
+    // console.log("have current user!", user.name, user.group_ids)
   }else{
     console.log(new Error("cannot find channel token"+channel_token))
   }

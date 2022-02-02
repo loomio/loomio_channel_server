@@ -1,4 +1,3 @@
-let allowedOrigins = '*:*'
 let port = process.env.PORT || 5000
 let defaultData = {
   "version": 0,
@@ -8,10 +7,12 @@ let defaultData = {
   }
 }
 
+assumed_app_url = "https://"+(process.env.VIRTUAL_HOST || '').replace('channels.','')
+
 const config = {
 	"port": port,
 	"defaultData": defaultData,
-	'allowedOrigins': allowedOrigins,
+	'allowedOrigins': (process.env.APP_URL || assumed_app_url),
   "redis": (process.env.REDIS_URL || 'redis://localhost:6379')
 }
 
