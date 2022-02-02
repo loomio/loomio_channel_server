@@ -41,6 +41,5 @@ jobs:
         with:
           context: .
           push: true
-          addLatest: true
           tags: loomio/loomio_channel_server:latest
           labels: ${{ steps.meta.outputs.labels }}
