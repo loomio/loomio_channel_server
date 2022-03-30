@@ -1,18 +1,19 @@
 {
-  "name": "tiptap-socketserver",
+  "name": "loomio_channel_server",
   "version": "0.0.1",
-  "description": "Socket backend to tiptap editor",
+  "description": "handles realtime loomio stuff like websockets and bots",
   "main": "index.js",
-  "author": "Gianni Carafa <gicara@gmail.com>",
-  "license": "GPLv3",
+  "author": "Robert Guthrie <rob@loomio.org>",
+  "license": "AGPLv3",
   "engines": {
-    "node": "14.x"
+    "node": "16.x"
   },
   "dependencies": {
     "@sentry/node": "^6.7.1",
     "dotenv": "^8.2.0",
-    "redis": "^3.1.2",
-    "socket.io": "^4.4.1"
+    "redis": "^4.0.4",
+    "socket.io": "^4.4.1",
+    "matrix-bot-sdk": "^0.5.19"
   },
   "devDependencies": {
     "eslint": "^7.29.0",
