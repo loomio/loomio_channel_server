@@ -51,7 +51,6 @@ module.exports = async () => {
       client.resolveRoom(params['channel']).then((roomId) => {
         client.sendMessage(roomId, {"msgtype": "m.notice", "body": params['message']});
       })
-      delete client;
     }
 
     if (channel == 'chatbot/publish') {
