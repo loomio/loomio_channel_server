@@ -11,6 +11,7 @@ const redis = require('redis').createClient({
 
 const bots = {};
 
+console.log("booting bots!");
 module.exports = async () => {
   redis.on('error', (err) => console.log('bots redis client error', err));
   await redis.connect();
@@ -20,7 +21,7 @@ module.exports = async () => {
   await subscriber.connect();
   await subscriber.pSubscribe('chatbot/*', (json, channel) => {
     const params = JSON.parse(json);
-    console.log(`channel: ${channel}, json: ${json}`);
+    console.log(`bot message: channel: ${channel}, json: ${json}`);
 
     if (channel == 'chatbot/test') {
       const client = new MatrixClient(params['server'], params['access_token']);
