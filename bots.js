@@ -19,6 +19,7 @@ module.exports = async () => {
 
   const subscriber = redis.duplicate();
   await subscriber.connect();
+  console.log("bot redis connected");
   await subscriber.pSubscribe('chatbot/*', (json, channel) => {
     const params = JSON.parse(json);
     console.log(`bot message: channel: ${channel}, json: ${json}`);
