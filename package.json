@@ -17,7 +17,7 @@
     "matrix-bot-sdk": "^0.5.19"
   },
   "devDependencies": {
-    "eslint": "^8.16.0",
+    "eslint": "^8.21.0",
     "nodemon": "^2.0.16"
   },
   "scripts": {
