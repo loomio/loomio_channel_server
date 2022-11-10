@@ -12,7 +12,7 @@
     "@sentry/node": "^7.0.0",
     "@sentry/tracing": "^6.19.6",
     "dotenv": "^16.0.1",
-    "redis": "^4.1.0",
+    "redis": "^4.5.0",
     "socket.io": "^4.5.1",
     "matrix-bot-sdk": "^0.5.19"
   },
