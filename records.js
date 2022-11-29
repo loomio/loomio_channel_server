@@ -13,7 +13,7 @@ const config = {
   allowedOrigin: (process.env.APP_URL || assumed_app_url),
 }
 
-console.log(config.appUrl);
+console.log("Allowed origin", config.allowedOrigin);
 
 module.exports = async () => {
   try {
