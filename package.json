@@ -13,7 +13,7 @@
     "@hocuspocus/extension-logger": "^2.13.5",
     "@hocuspocus/extension-sqlite": "^2.13.5",
     "@hocuspocus/server": "^2.13.5",
-    "@sentry/node": "^7.118.6",
+    "@sentry/node": "^7.118.0",
     "@sentry/tracing": "^7.114.0",
     "dotenv": "^16.0.1",
     "redis": "^4.6.15",
