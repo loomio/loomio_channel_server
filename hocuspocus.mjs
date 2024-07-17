@@ -4,10 +4,12 @@ import { SQLite } from "@hocuspocus/extension-sqlite";
 import { Logger } from "@hocuspocus/extension-logger";
 
 const url = (process.env.APP_URL || `https://${process.env.CANONICAL_HOST}`) + '/api/hocuspocus'
+const port = (process.env.RAILS_ENV == 'production') ? 5000 : 4444
+
 console.log("hocuspocus auth url: ", url);
 
 const server = Server.configure({
-  port: 4444,
+  port: port,
   timeout: 30000,
   debounce: 5000,
   maxDebounce: 30000,
