@@ -6,10 +6,14 @@
   "author": "Robert Guthrie <rob@loomio.org>",
   "license": "AGPLv3",
   "engines": {
-    "node": "16.x"
+    "node": "20.x"
   },
   "dependencies": {
-    "@sentry/node": "^7.0.0",
+    "@hocuspocus/extension-database": "^2.13.5",
+    "@hocuspocus/extension-logger": "^2.13.5",
+    "@hocuspocus/extension-sqlite": "^2.13.5",
+    "@hocuspocus/server": "^2.13.5",
+    "@sentry/node": "^6.19.6",
     "@sentry/tracing": "^6.19.6",
     "dotenv": "^16.0.1",
     "redis": "^4.1.0",
@@ -21,9 +25,7 @@
     "nodemon": "^2.0.16"
   },
   "scripts": {
-    "start": "node --harmony index.js",
-    "start-dev": "node_modules/.bin/nodemon index.js",
-    "lint": "eslint --ext js ./",
-    "lint-fix": "eslint --fix --ext js ./"
+    "start": "node index.js",
+    "hocuspocus": "node hocuspocus.mjs"
   }
 }

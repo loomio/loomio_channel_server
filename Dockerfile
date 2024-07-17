@@ -1,5 +1,4 @@
-FROM node:14
-RUN apt-get update -qq && apt-get install -y build-essential sudo apt-utils
+FROM node:20
 
 WORKDIR /app
 ADD . /app
