@@ -7,7 +7,7 @@ const url = (process.env.APP_URL || `https://${process.env.CANONICAL_HOST}`) + '
 console.log("hocuspocus auth url: ", url);
 
 const server = Server.configure({
-  port: 7700,
+  port: 4444,
   timeout: 30000,
   debounce: 5000,
   maxDebounce: 30000,
