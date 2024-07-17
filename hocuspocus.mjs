@@ -13,7 +13,7 @@ const server = Server.configure({
   timeout: 30000,
   debounce: 5000,
   maxDebounce: 30000,
-  quiet: false,
+  quiet: true,
   name: "hocuspocus",
   extensions: [
     new Logger(),
