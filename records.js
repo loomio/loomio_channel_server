@@ -18,6 +18,10 @@ console.log("Allowed origin", config.allowedOrigin);
 module.exports = async () => {
   try {
     const io = new Server(config.port, {
+      connectionStateRecovery: {
+        maxDisconnectionDuration: 30 * 60 * 1000,
+        skipMiddlewares: true,
+      },
       cors: {
         origin: config.allowedOrigin,
         credentials: true
