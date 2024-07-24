@@ -24,26 +24,22 @@ module.exports = async () => {
       }
     })
 
-    const recordSocket = io.of(/^\/records/)
-
     redis.on('error', (err) => bugs.log(err) );
     await redis.connect();
 
-    const subscriber = redis.duplicate();
-    await subscriber.connect();
+    const redisSub = redis.duplicate();
+    await redisSub.connect();
 
-    await subscriber.subscribe('/records', (json, channel) => {
+    await redisSub.subscribe('/records', (json, channel) => {
       let data = JSON.parse(json)
-      recordSocket.to(data.room).emit("update", JSON.parse(json))
+      io.to(data.room).emit('records', data)
     })
 
-    await subscriber.subscribe('/system_notice', (json, channel) => {
-      recordSocket.to('notice').emit("update", JSON.parse(json))
+    await redisSub.subscribe('/system_notice', (json, channel) => {
+      io.emit('notice', JSON.parse(json))
     })
 
-    recordSocket.on("connection", async (socket) => {
-      const recordsPath = socket.nsp.name
-
+    io.on("connection", async (socket) => {
       socket.join("notice")
 
       let channel_token = socket.handshake.query.channel_token
@@ -54,19 +50,7 @@ module.exports = async () => {
         socket.join("user-"+user.id)
         user.group_ids.forEach(groupId => { socket.join("group-"+groupId) })
         console.log("have current user!", user.name, user.group_ids)
-      }else{
-        bugs.log(new Error("cannot find channel token"+channel_token))
       }
-
-      socket.on("catchup", (data, callback) => {
-        console.log("catchup:", {data: data, callback: callback})
-        Object.keys(data).forEach(async (room) => {
-          let clientScore = data[room]
-          records = await redis.zrange("/records/"+room, clientScore, "+inf")
-          console.log("fetching data", room, data[room], records)
-          callback(records.map(JSON.parse))
-        })
-      })
     })
   } catch (e) {
     bugs.log(e)
