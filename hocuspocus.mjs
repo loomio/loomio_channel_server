@@ -1,4 +1,12 @@
 "use strict";
+import * as Sentry from "@sentry/node";
+const dsn = process.env.SENTRY_PUBLIC_DSN || process.env.SENTRY_DSN
+
+if (dsn) {
+  console.log("sentry dsn: ", dsn);
+  Sentry.init({dsn});
+}
+
 import { Server } from "@hocuspocus/server";
 import { SQLite } from "@hocuspocus/extension-sqlite";
 import { Logger } from "@hocuspocus/extension-logger";
@@ -35,4 +43,12 @@ const server = Server.configure({
   },
 });
 
-server.listen();
+if (dsn) {
+  try {
+    server.listen();
+  } catch (e) {
+    Sentry.captureException(e);
+  }
+} else {
+  server.listen();
+}
