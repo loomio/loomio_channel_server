@@ -34,6 +34,7 @@ const server = Server.configure({
         body: JSON.stringify({ user_secret: token, document_name: documentName }),
         headers: { 'Content-type': 'application/json; charset=UTF-8' },
     })
+    console.log(`hocuspocus debug post: ${token} ${documentName} ${response.status}`);
 
     if (response.status != 200) {
       throw new Error("Not authorized!");
