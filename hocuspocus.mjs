@@ -11,7 +11,10 @@ import { Server } from "@hocuspocus/server";
 import { SQLite } from "@hocuspocus/extension-sqlite";
 import { Logger } from "@hocuspocus/extension-logger";
 
-const url = (process.env.APP_URL || `https://${process.env.CANONICAL_HOST}`) + '/api/hocuspocus'
+if ((process.env.APP_URL || "").length == 0) {
+  throw "Missing ENV: APP_URL. It should be something like http://app:3000 or http://localhost:3000 or https://example.com"
+}
+const url = process.env.APP_URL + '/api/hocuspocus'
 const port = (process.env.RAILS_ENV == 'production') ? 5000 : 4444
 
 console.log("hocuspocus auth url: ", url);

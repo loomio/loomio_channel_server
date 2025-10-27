@@ -6,14 +6,10 @@ const redis = require('redis').createClient({
   url: (process.env.REDIS_URL || 'redis://localhost:6379/0')
 });
 
-var assumed_app_url = "https://"+ (process.env.CANONICAL_HOST || (process.env.VIRTUAL_HOST || '').replace('channels.',''))
-
 const config = {
   port: (process.env.PORT || 5000),
-  allowedOrigin: (process.env.APP_URL || assumed_app_url),
+  allowedOrigin: process.env.APP_URL,
 }
-
-console.log("Allowed origin", config.allowedOrigin);
 
 module.exports = async () => {
   try {
