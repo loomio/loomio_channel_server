@@ -6,9 +6,11 @@ const redis = require('redis').createClient({
   url: (process.env.REDIS_URL || 'redis://localhost:6379/0')
 });
 
+const publicAppUrl =  process.env.PUBLIC_APP_URL || "https://" + (process.env.CANONICAL_HOST || (process.env.VIRTUAL_HOST || '').replace('channels.',''))
+
 const config = {
   port: (process.env.PORT || 5000),
-  allowedOrigin: process.env.APP_URL,
+  allowedOrigin: publicAppUrl,
 }
 
 module.exports = async () => {

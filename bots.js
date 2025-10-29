@@ -3,8 +3,6 @@
 const bugs = require('./bugs.js')
 const MatrixSDK = require("matrix-bot-sdk");
 const MatrixClient = MatrixSDK.MatrixClient;
-const SimpleFsStorageProvider = MatrixSDK.SimpleFsStorageProvider;
-const AutojoinRoomsMixin = MatrixSDK.AutojoinRoomsMixin;
 
 const redis = require('redis').createClient({
   url: (process.env.REDIS_URL || 'redis://localhost:6379/0')
@@ -24,7 +22,7 @@ module.exports = async () => {
     console.log("bot redis connected");
     await subscriber.pSubscribe('chatbot/*', (json, channel) => {
       console.log(`bot message: channel: ${channel}, json: ${json}`);
-      
+
       const params = JSON.parse(json);
 
       if (channel == 'chatbot/test') {
