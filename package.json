@@ -6,7 +6,7 @@
   "author": "Robert Guthrie <rob@loomio.org>",
   "license": "AGPLv3",
   "engines": {
-    "node": "22.x"
+    "node": "24.x"
   },
   "dependencies": {
     "@hocuspocus/extension-database": "^2.13.5",

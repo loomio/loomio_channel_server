@@ -11,13 +11,15 @@ import { Server } from "@hocuspocus/server";
 import { SQLite } from "@hocuspocus/extension-sqlite";
 import { Logger } from "@hocuspocus/extension-logger";
 
-if ((process.env.APP_URL || "").length == 0) {
-  throw "Missing ENV: APP_URL. It should be something like http://app:3000 or http://localhost:3000 or https://example.com"
-}
-const url = process.env.APP_URL + '/api/hocuspocus'
+// trying make things backwards compativle for people doing ./update.sh
+// hocuspocus calling back to rails server to auth the connecting browser
+const authUrl = (process.env.PRIVATE_APP_URL ||
+                 process.env.PUBLIC_APP_URL ||
+                `https://${process.env.CANONICAL_HOST}`) + '/api/hocuspocus'
+
 const port = (process.env.RAILS_ENV == 'production') ? 5000 : 4444
 
-console.log("hocuspocus auth url: ", url);
+console.info("hocuspocus auth authUrl: ", authUrl);
 
 const server = Server.configure({
   port: port,
@@ -32,12 +34,12 @@ const server = Server.configure({
   ],
   async onAuthenticate(data) {
     const { token, documentName } = data;
-    const response = await fetch(url, {
+    const response = await fetch(authUrl, {
         method: 'POST',
         body: JSON.stringify({ user_secret: token, document_name: documentName }),
         headers: { 'Content-type': 'application/json; charset=UTF-8' },
     })
-    console.log(`hocuspocus debug post: ${token} ${documentName} ${response.status}`);
+    console.debug(`hocuspocus debug post: ${token} ${documentName} ${response.status}`);
 
     if (response.status != 200) {
       throw new Error("Not authorized!");
