@@ -14,6 +14,7 @@ import { Logger } from "@hocuspocus/extension-logger";
 // trying make things backwards compativle for people doing ./update.sh
 // hocuspocus calling back to rails server to auth the connecting browser
 const authUrl = (process.env.PRIVATE_APP_URL ||
+                 process.env.APP_URL ||
                  process.env.PUBLIC_APP_URL ||
                 `https://${process.env.CANONICAL_HOST}`) + '/api/hocuspocus'
 
