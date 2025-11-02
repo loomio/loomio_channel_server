@@ -28,18 +28,27 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+        if: env.HAVESECRET != null
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        if: env.HAVESECRET != null
+
       - name: Extract metadata (tags, labels) for Docker
         id: meta
         uses: docker/metadata-action@v4
         if: env.HAVESECRET != null
         with:
-          images: loomio/loomio_channel_server
+          images: wizmoisa/loomio-channel-server
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v4
         if: env.HAVESECRET != null
         with:
           context: .
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
