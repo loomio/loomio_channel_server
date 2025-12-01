@@ -9,10 +9,10 @@
     "node": "22.x"
   },
   "dependencies": {
-    "@hocuspocus/extension-database": "^2.13.5",
-    "@hocuspocus/extension-logger": "^2.13.5",
-    "@hocuspocus/extension-sqlite": "^2.13.5",
-    "@hocuspocus/server": "^2.13.5",
+    "@hocuspocus/extension-database": "^3.4.0",
+    "@hocuspocus/extension-logger": "^3.4.0",
+    "@hocuspocus/extension-sqlite": "^3.4.0",
+    "@hocuspocus/server": "^3.4.0",
     "@sentry/node": "^7.118.0",
     "@sentry/tracing": "^7.114.0",
     "dotenv": "^16.0.1",
