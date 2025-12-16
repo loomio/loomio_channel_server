@@ -22,7 +22,7 @@ const port = (process.env.RAILS_ENV == 'production') ? 5000 : 4444
 
 console.info("hocuspocus auth authUrl: ", authUrl);
 
-const server = Server.configure({
+const server = new Server({
   port: port,
   timeout: 30000,
   debounce: 5000,
