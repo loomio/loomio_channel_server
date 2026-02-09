@@ -1,5 +1,7 @@
 # loomio_channel_server
 
+Update: This repo is no longer used. We adopted Actioncable, moved the hocuspocus server in the main repo, and rebuild the matrix bot stuff in ruby.
+
 This repo performs 3 node.js based functions for Loomio
 
 1. Live update via socket.io. So if a new comment is posted, you will see it appear.
